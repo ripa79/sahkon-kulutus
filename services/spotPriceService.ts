@@ -32,16 +32,20 @@ class SpotPriceService {
         throw new Error('Current hour price not found');
       }
 
-      // Add VAT (24%) to the price and convert to cents/kWh
-      const VAT_RATE = 0.24;
+      // Add VAT (25.5%) to the price and convert to cents/kWh
+      const VAT_RATE = 0.255;
       const priceWithVAT = currentHourPrice.value * (1 + VAT_RATE);
 
+      // Log the price to the console
+      console.info('[spotPriceService] Calculated spot price with VAT:', priceWithVAT);
+
+      // Return the price, including negative values
       return {
         price: Number(priceWithVAT.toFixed(2)),
         timestamp: currentHourPrice.timeStamp
       };
     } catch (error) {
-      console.error('Failed to fetch current spot price:', error);
+      console.error('[Failed to fetch current spot price:', error);
       throw error;
     }
   }

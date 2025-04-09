@@ -17,7 +17,7 @@ export default function HomeScreen() {
   // Use layout effect to ensure synchronous refresh when dependencies change
   useLayoutEffect(() => {
     if (isFocused) {
-      console.log('HomeScreen focused, refreshing data...', {
+      console.log('[HomeScreen] Screen focused, refreshing data...', {
         year: settings.year,
         settingsVersion,
         hasCurrentPrice: !!currentPrice,
@@ -28,13 +28,13 @@ export default function HomeScreen() {
   }, [isFocused, settings.year, settingsVersion, refresh]);
 
   const onRefresh = useCallback(async () => {
-    console.log('Manual refresh triggered');
+    console.log('[HomeScreen] Manual refresh triggered');
     setRefreshing(true);
     try {
       await refresh();
-      console.log('Manual refresh completed successfully');
+      console.log('[HomeScreen] Manual refresh completed successfully');
     } catch (error: any) {
-      console.error('Error during manual refresh:', {
+      console.error('[HomeScreen] Error during manual refresh:', {
         message: error.message,
         stack: error.stack
       });
@@ -45,7 +45,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (error) {
-      console.error('Error state in HomeScreen:', {
+      console.error('[HomeScreen] Error state detected:', {
         error,
         settings: {
           year: settings.year,
@@ -55,7 +55,9 @@ export default function HomeScreen() {
     }
   }, [error, settings]);
 
-  const currentPriceWithMargin = currentPrice ? currentPrice + Number(settings.spotMargin) : null;
+  const currentPriceWithMargin = currentPrice !== null 
+    ? currentPrice + Number(settings.spotMargin) 
+    : null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -77,7 +79,7 @@ export default function HomeScreen() {
               <View style={styles.priceBreakdown}>
                 <ThemedText style={styles.priceLabel}>Spot price:</ThemedText>
                 <ThemedText style={styles.priceValue}>
-                  {currentPrice ? currentPrice.toFixed(2) : '--'} c/kWh
+                  {currentPrice ? currentPrice.toFixed(2) : '0.0'} c/kWh
                 </ThemedText>
               </View>
               <View style={styles.priceBreakdown}>
@@ -89,7 +91,7 @@ export default function HomeScreen() {
               <View style={[styles.priceBreakdown, styles.totalPrice]}>
                 <ThemedText style={styles.priceLabel}>Total:</ThemedText>
                 <ThemedText style={[styles.priceValue, styles.totalPriceValue]}>
-                  {currentPriceWithMargin ? currentPriceWithMargin.toFixed(2) : '--'} c/kWh
+                  {currentPriceWithMargin !== null ? currentPriceWithMargin.toFixed(2) : '--'} c/kWh
                 </ThemedText>
               </View>
             </View>

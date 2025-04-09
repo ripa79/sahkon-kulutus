@@ -195,7 +195,7 @@ export default function SettingsScreen() {
             Reset Application
           </ThemedText>
         </Pressable>
-        <ThemedText style={styles.label}>App version 1.0.3</ThemedText>
+        <ThemedText style={styles.label}>App version 1.0.4</ThemedText>
       </View>
     </ThemedView>
   );

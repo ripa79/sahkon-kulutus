@@ -76,20 +76,27 @@ export function usePriceData() {
       hourlyData,
       monthlyData,
       currentPrice: rawData.currentPrice,
-      currentPriceWithMargin: rawData.currentPrice ? Number((rawData.currentPrice + spotMargin).toFixed(2)) : null
+      currentPriceWithMargin: rawData.currentPrice !== null 
+        ? Number((rawData.currentPrice + spotMargin).toFixed(2)) 
+        : null
     };
   }, []);
 
   const fetchData = useCallback(async () => {
     try {
+      console.info('[usePriceData] Fetching price data...');
       setData(prev => ({ ...prev, isLoading: true, error: null }));
       
       // Get current spot price
+      console.info('[usePriceData] Fetching current spot price...');
       const currentSpotPrice = await spotPriceService.getCurrentSpotPrice();
-      
+      console.info('[usePriceData] Current spot price fetched:', currentSpotPrice);
+
       // Get combined data for the selected year
+      console.info('[usePriceData] Fetching combined data for year:', settings.year);
       const yearData = await dataProcessor.combineData(settings.year);
-      
+      //console.info('[usePriceData] Combined data fetched:', yearData);
+
       // Create base data without margin
       const baseData = {
         currentPrice: currentSpotPrice.price,
@@ -101,10 +108,13 @@ export function usePriceData() {
       };
 
       // Apply spot margin to all prices
+      console.info('[usePriceData] Applying spot margin:', settings.spotMargin);
       const dataWithMargin = applySpotMargin(baseData, Number(settings.spotMargin));
+      //console.info('[usePriceData] Data with margin applied:', dataWithMargin);
+
       setData(dataWithMargin);
     } catch (err) {
-      console.error('Error fetching price data:', err);
+      console.error('[usePriceData] Error fetching price data:', err);
       setData(prev => ({
         ...prev,
         isLoading: false,
