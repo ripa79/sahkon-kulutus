@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Sähkön Kulutus",
   slug: "sahko-kulutus-app",
-  version: "1.0.3",
+  version: "1.0.4",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: "myapp",
@@ -38,7 +38,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     YEAR: new Date().getFullYear().toString(),
     SPOT_MARGIN: '0.6',
-    version: "1.0.3",  // Add version to extra
+    version: "1.0.4",  // Add version to extra
     eas: {
       projectId: "e2fb547e-f1ca-4b23-a523-f6cd28dfe547"
     }

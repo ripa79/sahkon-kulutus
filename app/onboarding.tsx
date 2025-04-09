@@ -103,7 +103,7 @@ export default function OnboardingScreen() {
               )}
             </TouchableOpacity>
           </View>
-          <ThemedText style={styles.version}>Version {Constants.expoConfig?.extra?.version || '1.0.3'}</ThemedText>
+          <ThemedText style={styles.version}>Version {Constants.expoConfig?.extra?.version || '1.0.4'}</ThemedText>
         </View>
       </SafeAreaView>
     </ThemedView>
