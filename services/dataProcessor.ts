@@ -123,14 +123,14 @@ class DataProcessor {
             // Process consumption data and combine with prices
             for (const response of responses) {
                 for (const month of response.months || []) {
-                    // Try hourly_values first since that's what we see in the logs
-                    let readings = month.hourly_values;
-                    let readingsSource = 'hourly_values';
+                    // Try hourly_values_netted first since that's what we see in the logs
+                    let readings = month.hourly_values_netted;
+                    let readingsSource = 'hourly_values_netted';
                     
-                    // Only fallback to hourly_values_netted if hourly_values is not available
+                    // Only fallback to hourly_values if hourly_values is not available
                     if (!readings || readings.length === 0) {
-                        readings = month.hourly_values_netted;
-                        readingsSource = 'hourly_values_netted';
+                        readings = month.hourly_values;
+                        readingsSource = 'hourly_values';
                     }
 
                     if (!readings || readings.length === 0) {

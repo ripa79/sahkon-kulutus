@@ -249,7 +249,7 @@ class EleniaService {
                 totalHourlyValues,
                 totalHourlyValuesNetted
             });
-
+            
             return response.data;
         } catch (error: any) {
             const errorDetails = {
@@ -296,10 +296,10 @@ class EleniaService {
             }
 
             // Optionally fetch production data if available
-            if (productionGsrn) {
+            /*if (productionGsrn) {
                 const productionData = await this.getMeterReadings(apiToken, productionGsrn, customerId, year);
                 results.push(productionData);
-            }
+            }*/
 
             return results;
         } catch (error: any) {
