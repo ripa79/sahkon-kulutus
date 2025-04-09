@@ -36,11 +36,14 @@ export function usePriceData() {
   });
 
   const applySpotMargin = useCallback((rawData: typeof data, spotMargin: number) => {
+    //console.log('[usePriceData] Applying spot margin:', spotMargin);
     const hourlyData = rawData.hourlyData.map(hour => ({
       ...hour,
       price_cents_per_kWh: Number((hour.price_cents_per_kWh + spotMargin).toFixed(2)),
       cost_euros: Number(((hour.consumption_kWh * (hour.price_cents_per_kWh + spotMargin)) / 100).toFixed(6))
     }));
+
+    //console.log('[usePriceData] Hourly data after applying margin:', hourlyData);
 
     // Recalculate monthly data with new margins
     const monthlyDataMap = new Map<string, typeof rawData.monthlyData[0]>();
@@ -71,6 +74,8 @@ export function usePriceData() {
       totalCost: Number(month.totalCost.toFixed(2))
     }));
 
+    console.log('[usePriceData] Recalculated monthly data:', monthlyData);
+
     return {
       ...rawData,
       hourlyData,
@@ -86,10 +91,14 @@ export function usePriceData() {
       
       // Get current spot price
       const currentSpotPrice = await spotPriceService.getCurrentSpotPrice();
-      
+      console.log('[usePriceData] Current spot price:', currentSpotPrice);
+
       // Get combined data for the selected year
       const yearData = await dataProcessor.combineData(settings.year);
-      
+      //console.log('[usePriceData] Year data fetched from DataProcessor:', {
+      //  monthlyData: yearData.monthly
+      //});
+
       // Create base data without margin
       const baseData = {
         currentPrice: currentSpotPrice.price,
@@ -100,8 +109,12 @@ export function usePriceData() {
         error: null
       };
 
+      console.log('[usePriceData] Base monthly data before applying margin:', baseData.monthlyData);
+
       // Apply spot margin to all prices
       const dataWithMargin = applySpotMargin(baseData, Number(settings.spotMargin));
+      console.log('[usePriceData] Monthly data after applying margin:', dataWithMargin.monthlyData);
+
       setData(dataWithMargin);
     } catch (err) {
       console.error('Error fetching price data:', err);

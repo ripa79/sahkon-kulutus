@@ -23,6 +23,9 @@ export default function HomeScreen() {
         hasCurrentPrice: !!currentPrice,
         hasMonthlyData: monthlyData?.length > 0
       });
+      if (monthlyData) {
+        console.log('Monthly data received by UI:', monthlyData);
+      }
       refresh();
     }
   }, [isFocused, settings.year, settingsVersion, refresh]);
@@ -67,7 +70,7 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={styles.priceCard}>
-          <ThemedText style={styles.title}>Current Electricity Price</ThemedText>
+          <ThemedText style={styles.title}>Current Electricity Price v2</ThemedText>
           {isLoading ? (
             <ActivityIndicator size="large" />
           ) : error ? (
@@ -102,25 +105,28 @@ export default function HomeScreen() {
           ) : error ? (
             <ThemedText style={styles.error}>{error}</ThemedText>
           ) : (
-            monthlyData.map((month, index) => (
-              <ThemedView key={index} style={styles.monthRow}>
-                <ThemedText style={styles.monthName}>{month.month}</ThemedText>
-                <View style={styles.monthDetails}>
-                  <View style={styles.detailColumn}>
-                    <ThemedText style={styles.label}>Usage</ThemedText>
-                    <ThemedText style={styles.value}>{month.totalConsumption.toFixed(1)} kWh</ThemedText>
+            monthlyData.map((month, index) => {
+              console.log(`Rendering month ${month.month}:`, month);
+              return (
+                <ThemedView key={index} style={styles.monthRow}>
+                  <ThemedText style={styles.monthName}>{month.month}</ThemedText>
+                  <View style={styles.monthDetails}>
+                    <View style={styles.detailColumn}>
+                      <ThemedText style={styles.label}>Usage</ThemedText>
+                      <ThemedText style={styles.value}>{month.totalConsumption.toFixed(1)} kWh</ThemedText>
+                    </View>
+                    <View style={styles.detailColumn}>
+                      <ThemedText style={styles.label}>Avg. Price</ThemedText>
+                      <ThemedText style={styles.value}>{month.averagePrice.toFixed(2)} c/kWh</ThemedText>
+                    </View>
+                    <View style={styles.detailColumn}>
+                      <ThemedText style={styles.label}>Total</ThemedText>
+                      <ThemedText style={styles.value}>{month.totalCost.toFixed(2)} €</ThemedText>
+                    </View>
                   </View>
-                  <View style={styles.detailColumn}>
-                    <ThemedText style={styles.label}>Avg. Price</ThemedText>
-                    <ThemedText style={styles.value}>{month.averagePrice.toFixed(2)} c/kWh</ThemedText>
-                  </View>
-                  <View style={styles.detailColumn}>
-                    <ThemedText style={styles.label}>Total</ThemedText>
-                    <ThemedText style={styles.value}>{month.totalCost.toFixed(2)} €</ThemedText>
-                  </View>
-                </View>
-              </ThemedView>
-            ))
+                </ThemedView>
+              );
+            })
           )}
         </ThemedView>
       </ScrollView>

@@ -1,8 +1,10 @@
+// services/eleniaService.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { secureStorage } from '@/services/secureStorage';
 import Constants from 'expo-constants';
 import { LogBox } from 'react-native';
+import { toZonedTime as utcToZonedTime, format } from 'date-fns-tz';
 
 interface CustomerData {
     token: string;
@@ -201,19 +203,40 @@ class EleniaService {
 
             // Normalize timestamps in the response data
             response.data.months = response.data.months.map(month => {
-                if (month.hourly_values) {
-                    month.hourly_values = month.hourly_values.map(reading => ({
-                        ...reading,
-                        t: new Date(reading.t).toISOString().replace(/\.000Z$/, 'Z')
-                    }));
-                }
-                if (month.hourly_values_netted) {
+                const convertTimestamp = (timestamp: string) => {
+                    try {
+                        let date = new Date(timestamp);
+                        const helsinkiDate = utcToZonedTime(date, 'Europe/Helsinki');
+                        return format(helsinkiDate, "yyyy-MM-dd'T'HH:mm:ssXXX", { timeZone: 'Europe/Helsinki' });
+                    } catch (error) {
+                        console.warn(`[EleniaService] Failed to parse timestamp: ${timestamp}`, error);
+                        return timestamp;
+                    }
+                };
+                
+                if (month.hourly_values_netted && month.hourly_values_netted.length > 0) {
+                    // Use only netted values if available
                     month.hourly_values_netted = month.hourly_values_netted.map(reading => ({
                         ...reading,
-                        t: new Date(reading.t).toISOString().replace(/\.000Z$/, 'Z')
+                        t: convertTimestamp(reading.t)
                     }));
+                    month.hourly_values = undefined; // Clear non-netted values
+                } else if (month.hourly_values && month.hourly_values.length > 0) {
+                    // Use hourly values if no netted values are available
+                    month.hourly_values = month.hourly_values.map(reading => ({
+                        ...reading,
+                        t: convertTimestamp(reading.t)
+                    }));
+                    month.hourly_values_netted = undefined; // Clear netted values
                 }
                 return month;
+            });
+
+            // Calculate and log monthly usage
+            response.data.months.forEach(month => {
+                const values = month.hourly_values_netted || month.hourly_values || [];
+                const totalKwh = values.reduce((sum, reading) => sum + reading.v / 1000, 0); // Convert watts to kilowatts
+                console.warn(`[EleniaService] Month ${month.month} total usage: ${totalKwh.toFixed(2)} kWh`);
             });
 
             // Log data structure details for debugging
@@ -296,10 +319,10 @@ class EleniaService {
             }
 
             // Optionally fetch production data if available
-            if (productionGsrn) {
+            /*if (productionGsrn) {
                 const productionData = await this.getMeterReadings(apiToken, productionGsrn, customerId, year);
                 results.push(productionData);
-            }
+            }*/
 
             return results;
         } catch (error: any) {
